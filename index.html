@@ -1,0 +1,2064 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Aesthetic Diaries - Ramadan Planner</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Quicksand:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
+
+    <!-- CDNs -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        :root {
+            --bg-color: #fdfbf7;
+            /* Warm Cream */
+            --primary-color: #8da399;
+            /* Sage Green */
+            --secondary-color: #d6b4a1;
+            /* Muted Blush */
+            --text-color: #4a4a4a;
+            /* Charcoal */
+            --card-bg: rgba(255, 255, 255, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.5);
+            --shadow: 0 8px 32px 0 rgba(141, 163, 153, 0.15);
+            --font-heading: 'Amiri', serif;
+            --font-body: 'Quicksand', sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            outline: none;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: var(--font-body);
+            overflow-x: hidden;
+            min-height: 100vh;
+            cursor: none;
+            /* Custom cursor */
+            position: relative;
+        }
+
+        /* Animated Background Particles */
+        #particles-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            background: radial-gradient(circle, var(--secondary-color) 0%, transparent 70%);
+            border-radius: 50%;
+            opacity: 0.4;
+        }
+
+        /* Custom Cursor */
+        .cursor-dot {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--secondary-color);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            transition: width 0.3s, height 0.3s, background-color 0.3s;
+        }
+
+        .cursor-dot.active {
+            width: 30px;
+            height: 30px;
+            background-color: rgba(214, 180, 161, 0.2);
+        }
+
+        /* Container */
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            position: relative;
+        }
+
+        /* Header */
+        header {
+            text-align: center;
+            margin-bottom: 50px;
+            position: relative;
+        }
+
+        h1 {
+            font-family: var(--font-heading);
+            font-size: 3.5rem;
+            color: var(--text-color);
+            margin-bottom: 10px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: var(--primary-color);
+            font-weight: 500;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        /* Moon and Lantern Decorations */
+        .moon-decor {
+            position: absolute;
+            top: -20px;
+            right: 10%;
+            width: 80px;
+            height: 80px;
+            z-index: -1;
+            opacity: 0.8;
+            fill: var(--primary-color);
+        }
+
+        .lantern {
+            position: absolute;
+            width: 40px;
+            z-index: -1;
+            fill: var(--secondary-color);
+            opacity: 0.7;
+        }
+
+        .lantern-1 {
+            top: 10px;
+            left: 10%;
+            width: 50px;
+        }
+
+        .lantern-2 {
+            top: 50px;
+            left: 20%;
+            width: 30px;
+        }
+
+        .lantern-3 {
+            top: 20px;
+            right: 20%;
+            width: 40px;
+        }
+
+        /* Planner Wrapper */
+        #planner-wrapper {
+            /* This wrapper is for specific width/padding management if needed */
+        }
+
+        /* The actual Planner Card to capture */
+        #planner {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 30px;
+            padding: 40px;
+            box-shadow: var(--shadow);
+            margin-bottom: 40px;
+            position: relative;
+            overflow: hidden;
+            /* Ensure sparkles don't bleed out in screenshot */
+        }
+
+        #planner::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+        }
+
+        .section-title {
+            font-family: var(--font-heading);
+            font-size: 1.8rem;
+            color: var(--text-color);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title svg {
+            width: 24px;
+            height: 24px;
+            fill: var(--primary-color);
+        }
+
+        /* Grid Layout */
+        .planner-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 30px;
+        }
+
+        @media (min-width: 768px) {
+            .planner-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .full-width {
+                grid-column: span 2;
+            }
+        }
+
+        /* Cards */
+        .card {
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 20px;
+            padding: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Salah Tracker */
+        .salah-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .salah-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(255, 255, 255, 0.6);
+            padding: 12px 15px;
+            border-radius: 12px;
+            transition: background 0.3s;
+        }
+
+        .salah-item:hover {
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .checkbox-wrapper {
+            position: relative;
+            width: 24px;
+            height: 24px;
+        }
+
+        .custom-checkbox {
+            appearance: none;
+            width: 100%;
+            height: 100%;
+            border: 2px solid var(--primary-color);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .custom-checkbox:checked {
+            background-color: var(--primary-color);
+            transform: scale(1.1);
+            box-shadow: 0 0 10px var(--primary-color);
+        }
+
+        .custom-checkbox::after {
+            content: '✓';
+            color: white;
+            font-size: 14px;
+            display: none;
+        }
+
+        .custom-checkbox:checked::after {
+            display: block;
+        }
+
+        /* Inputs */
+        input[type="text"],
+        textarea {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.6);
+            border: 1px solid transparent;
+            border-radius: 12px;
+            padding: 15px;
+            font-family: var(--font-body);
+            font-size: 1rem;
+            color: var(--text-color);
+            transition: all 0.3s;
+            resize: none;
+        }
+
+        input[type="text"]:focus,
+        textarea:focus {
+            background: white;
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 15px rgba(214, 180, 161, 0.2);
+            transform: scale(1.01);
+        }
+
+        /* To-Do List */
+        .todo-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .todo-input {
+            flex: 1;
+            padding: 10px !important;
+        }
+
+        /* Buttons */
+        .btn-main {
+            display: block;
+            width: 100%;
+            max-width: 300px;
+            margin: 0 auto;
+            padding: 18px 30px;
+            background: linear-gradient(135deg, var(--primary-color), #7a8f85);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-family: var(--font-body);
+            font-weight: 600;
+            font-size: 1.1rem;
+            cursor: pointer;
+            box-shadow: 0 10px 20px rgba(141, 163, 153, 0.3);
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .btn-main::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .btn-main:active::after {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn-main:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(141, 163, 153, 0.4);
+        }
+
+        /* Add Button */
+        .btn-add {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            margin: 10px auto 0;
+            background: rgba(255, 255, 255, 0.5);
+            border: 1px solid var(--primary-color);
+            border-radius: 50%;
+            color: var(--primary-color);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-add:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: rotate(90deg);
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            margin-bottom: 30px;
+        }
+
+        .progress-bar-bg {
+            width: 100%;
+            height: 8px;
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--secondary-color), var(--primary-color));
+            border-radius: 10px;
+            transition: width 0.5s ease-out;
+        }
+
+        .progress-text {
+            text-align: right;
+            font-size: 0.8rem;
+            color: #888;
+            margin-top: 5px;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            color: #888;
+            font-size: 0.9rem;
+        }
+
+        /* SVG Icons */
+        .icon-moon {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Layout Grid */
+        .layout-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 40px;
+            align-items: start;
+        }
+
+        @media (min-width: 1200px) {
+            .container {
+                max-width: 1400px;
+            }
+
+            .layout-grid {
+                grid-template-columns: 300px 1fr 300px;
+            }
+        }
+
+        /* Sidebars */
+        .sidebar {
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            border-radius: 20px;
+            padding: 25px;
+            position: sticky;
+            top: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .sidebar-title {
+            font-family: var(--font-heading);
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            text-align: center;
+            border-bottom: 2px solid rgba(141, 163, 153, 0.2);
+            padding-bottom: 10px;
+        }
+
+        /* Good Deeds Tracker */
+        .deed-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .deed-box {
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 15px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .deed-box:hover {
+            transform: translateY(-3px);
+            background: rgba(255, 255, 255, 0.8);
+        }
+
+        .deed-box.active {
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.1), rgba(255, 255, 255, 0.9));
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
+        }
+
+        .deed-icon {
+            width: 32px;
+            height: 32px;
+            margin: 0 auto 8px auto;
+            display: block;
+            fill: #999;
+            transition: all 0.3s;
+        }
+
+        .deed-box.active .deed-icon {
+            fill: var(--primary-color);
+            transform: scale(1.1);
+            filter: drop-shadow(0 0 5px rgba(212, 175, 55, 0.5));
+        }
+
+        .deed-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #666;
+        }
+
+        .deed-box.active .deed-label {
+            color: var(--primary-color);
+        }
+
+        /* Chart Canvas */
+        .chart-wrapper {
+            position: relative;
+            height: 200px;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        /* Islamic Decoration */
+        .islamic-pattern {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: radial-gradient(var(--primary-color) 1px, transparent 1px);
+            background-size: 20px 20px;
+            opacity: 0.05;
+            z-index: -2;
+            pointer-events: none;
+        }
+
+        .bismillah {
+            font-family: 'Amiri', serif;
+            font-size: 2rem;
+            text-align: center;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            opacity: 0.8;
+        }
+
+        .inspiration-card {
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 15px;
+            padding: 15px;
+            text-align: center;
+            font-style: italic;
+            border-left: 4px solid var(--secondary-color);
+        }
+
+        .inspiration-source {
+            display: block;
+            margin-top: 10px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            font-style: normal;
+        }
+
+        /* Hide elements during save */
+        .hide-on-save {
+            display: none !important;
+        }
+
+        /* Sparkle Animation */
+        @keyframes sparkle {
+            0% {
+                transform: scale(0) rotate(0deg);
+                opacity: 0;
+            }
+
+            50% {
+                opacity: 1;
+            }
+
+            100% {
+                transform: scale(1.5) rotate(180deg);
+                opacity: 0;
+            }
+        }
+
+        .sparkle-effect {
+            position: absolute;
+            pointer-events: none;
+            background: radial-gradient(circle, #fff 10%, transparent 60%);
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            z-index: 10;
+        }
+
+        /* Days Tracker */
+        .days-container {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding: 10px 5px;
+            margin-bottom: 30px;
+            justify-content: flex-start;
+            scrollbar-width: thin;
+            scrollbar-color: var(--primary-color) transparent;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .days-container::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .days-container::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 10px;
+        }
+
+        .day-circle {
+            flex: 0 0 40px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            border: 1px solid var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            font-family: var(--font-body);
+            color: var(--primary-color);
+        }
+
+        .day-circle:hover {
+            background: var(--secondary-color);
+            color: white;
+            border-color: var(--secondary-color);
+        }
+
+        .day-circle.active {
+            background: var(--primary-color);
+            color: white;
+            transform: scale(1.15);
+            box-shadow: 0 5px 15px rgba(141, 163, 153, 0.4);
+            border-color: var(--primary-color);
+        }
+
+        /* User Profile Inputs */
+        .profile-inputs {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .profile-input {
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid var(--primary-color);
+            padding: 8px 15px;
+            font-family: var(--font-body);
+            font-size: 1rem;
+            color: var(--text-color);
+            text-align: center;
+            outline: none;
+            transition: all 0.3s;
+            width: 250px;
+        }
+
+        .profile-input::placeholder {
+            color: rgba(62, 74, 61, 0.5);
+        }
+
+        .profile-input:focus {
+            border-bottom-color: var(--secondary-color);
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 5px 5px 0 0;
+        }
+
+        .btn-sync {
+            background: rgba(255, 255, 255, 0.6);
+            border: 1px solid var(--primary-color);
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-family: var(--font-body);
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .btn-sync:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-sync {
+            background: rgba(255, 255, 255, 0.6);
+            border: 1px solid var(--primary-color);
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-family: var(--font-body);
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .btn-sync:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(5px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal-active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background: #ffffff;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+            border: 2px solid var(--secondary-color);
+            max-width: 400px;
+            width: 90%;
+            transform: scale(0.8);
+            transition: all 0.3s ease;
+        }
+
+        .modal-active .modal-content {
+            transform: scale(1);
+        }
+
+        .modal-title {
+            font-family: var(--font-heading);
+            color: var(--primary-color);
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+
+        .modal-input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            font-family: var(--font-body);
+            font-size: 1rem;
+            outline: none;
+            text-align: center;
+        }
+
+        .modal-input:focus {
+            border-color: var(--primary-color);
+            background: rgba(141, 163, 153, 0.1);
+        }
+
+        .modal-btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 15px;
+            transition: transform 0.2s;
+        }
+
+        .modal-btn:hover {
+            transform: scale(1.05);
+        }
+
+        /* Tahajjud Logic Styles */
+        .tahajjud-disabled {
+            opacity: 0.5;
+            pointer-events: none;
+            filter: grayscale(100%);
+            transition: all 0.5s ease;
+        }
+
+        .tahajjud-unlocked {
+            opacity: 1;
+            pointer-events: auto;
+            filter: grayscale(0%);
+            animation: goldenGlow 2s infinite alternate;
+        }
+
+        @keyframes goldenGlow {
+            from {
+                box-shadow: 0 0 5px #ffd700, 0 0 10px #ffd700;
+            }
+
+            to {
+                box-shadow: 0 0 20px #ffd700, 0 0 30px #ffea00;
+            }
+        }
+
+        /* Apply glow to the checkbox wrapper specifically */
+        .tahajjud-unlocked .checkbox-wrapper {
+            border-radius: 50%;
+            box-shadow: 0 0 15px gold;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Audio Elements -->
+    <!-- Using generic reliable short sounds -->
+    <audio id="sound-click" src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3"
+        preload="auto"></audio>
+    <audio id="sound-hover" src="https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3"
+        preload="auto"></audio>
+    <audio id="sound-success" src="https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3"
+        preload="auto"></audio>
+
+    <!-- Background Particles -->
+    <div id="particles-container"></div>
+
+    <!-- Custom Cursor -->
+    <div class="cursor-dot"></div>
+
+    <div class="container">
+        <header>
+            <h1>The Aesthetic Diaries</h1>
+            <div class="subtitle">Your 30 Day Ramadan Reset</div>
+        </header>
+
+        <!-- Profile Modal -->
+        <div class="modal-overlay" id="profile-modal">
+            <div class="modal-content">
+                <div class="modal-title">Welcome Back 🌙</div>
+                <div class="subtitle" style="margin-bottom: 20px; color: #666; font-size: 0.9rem;">
+                    Enter your details to sync your progress.
+                </div>
+
+                <input type="text" id="user-name" class="modal-input" placeholder="Your Name">
+                <input type="email" id="user-email" class="modal-input" placeholder="Your Email">
+
+                <button class="modal-btn" id="sync-go-btn">🚀 Lets Go</button>
+                <div id="sync-status"
+                    style="margin-top: 15px; font-size: 0.9rem; color: var(--primary-color); min-height: 20px;"></div>
+            </div>
+        </div>
+
+        <!-- Celebration Modal -->
+        <div class="modal-overlay" id="celebration-modal">
+            <div class="modal-content" style="text-align: center;">
+                <h2 style="font-family: 'Cinzel', serif; color: var(--primary-color); margin-bottom: 15px;">Mashallah!
+                    Perfect Day! 🌟</h2>
+                <p style="color: #666; margin-bottom: 25px;">You have completed all your goals for today.<br>May Allah
+                    accept your efforts and grant you steadfastness.</p>
+                <button class="btn-main" onclick="closeCelebration()">Alhamdulillah</button>
+            </div>
+        </div>
+
+        <!-- Day Navigation -->
+        <div class="days-container" id="days-container">
+            <!-- Generated by JS -->
+        </div>
+
+        <div class="layout-grid">
+
+            <!-- Left Sidebar: Stats -->
+            <div class="sidebar hide-on-mobile">
+                <div class="sidebar-title">My Progress</div>
+                <div class="chart-wrapper">
+                    <canvas id="salahChart"></canvas>
+                </div>
+
+                <!-- Progress Bar moved here -->
+                <div class="progress-container">
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" id="daily-progress"></div>
+                    </div>
+                    <div class="progress-text" id="progress-text">0% Completed</div>
+                </div>
+
+                <div class="inspiration-card">
+                    "The most beloved of deeds to Allah are those that are most consistent, even if they are small."
+                    <span class="inspiration-source">— Prophet Muhammad (ﷺ)</span>
+                </div>
+            </div>
+
+            <!-- Main Planner -->
+            <div id="planner-wrapper">
+                <div id="planner">
+                    <div class="bismillah">بسم الله الرحمن الرحيم</div>
+                    <div class="planner-grid">
+
+                        <!-- Salah Tracker -->
+                        <div class="card">
+                            <div class="section-title">
+                                <svg viewBox="0 0 24 24">
+                                    <path
+                                        d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9v-2h2v2zm0-4H9V7h2v5z" />
+                                </svg>
+                                Salah Tracker
+                            </div>
+                            <div class="salah-list">
+                                <div class="salah-item"><span>Fajr</span>
+                                    <div class="checkbox-wrapper"><input type="checkbox"
+                                            class="custom-checkbox salah-check" data-id="fajr"></div>
+                                </div>
+                                <div class="salah-item"><span>Dhuhr</span>
+                                    <div class="checkbox-wrapper"><input type="checkbox"
+                                            class="custom-checkbox salah-check" data-id="dhuhr"></div>
+                                </div>
+                                <div class="salah-item"><span>Asr</span>
+                                    <div class="checkbox-wrapper"><input type="checkbox"
+                                            class="custom-checkbox salah-check" data-id="asr"></div>
+                                </div>
+                                <div class="salah-item"><span>Maghrib</span>
+                                    <div class="checkbox-wrapper"><input type="checkbox"
+                                            class="custom-checkbox salah-check" data-id="maghrib"></div>
+                                </div>
+                                <div class="salah-item" id="isha-row"><span>Isha</span>
+                                    <div class="checkbox-wrapper"><input type="checkbox"
+                                            class="custom-checkbox salah-check" data-id="isha" id="isha-checkbox"></div>
+                                </div>
+                                <div class="salah-item tahajjud-disabled" id="tahajjud-row"><span>Tahajjud</span>
+                                    <div class="checkbox-wrapper"><input type="checkbox"
+                                            class="custom-checkbox salah-check" data-id="tahajjud"
+                                            id="tahajjud-checkbox" disabled></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Quran Goal -->
+                        <div class="card">
+                            <div class="section-title">
+                                <svg viewBox="0 0 24 24">
+                                    <path
+                                        d="M21 5c-1.11-.35-2.33-.5-3.5-.5-1.95 0-4.05.4-5.5 1.5-1.45-1.1-3.55-1.5-5.5-1.5S2.45 4.9 1 6v14.65c0 .25.25.5.5.5.1 0 .15-.05.25-.05C3.1 20.45 5.05 20 6.5 20c1.95 0 4.05.4 5.5 1.5 1.35-.85 3.8-1.5 5.5-1.5 1.65 0 3.35.3 4.75 1.05.41.21.75-.19.75-.65V6c-.22 0-.44-.1-.65-.1zM19 17c-1.14-.14-2.3 .13-3.08 .66C15.93 17 16 16.5 16 16v-8c0-1.1 .9-2 2-2h1v11z" />
+                                </svg>
+                                Quran Goal
+                            </div>
+                            <input type="text" id="quran-input" placeholder="What did you read today?">
+
+                            <div class="section-title" style="margin-top: 30px;">
+                                <svg viewBox="0 0 24 24">
+                                    <path
+                                        d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
+                                        fill="var(--secondary-color)" />
+                                </svg>
+                                Gratitude
+                            </div>
+                            <textarea id="gratitude-input" rows="3" placeholder="Alhamdulillah for..."></textarea>
+                        </div>
+
+                        <!-- Good Deeds Tracker -->
+                        <div class="card full-width">
+                            <div class="section-title">
+                                <span style="font-size: 1.2rem; margin-right: 8px;">✨</span> Good Deeds
+                            </div>
+                            <div class="deed-container">
+                                <div class="deed-box" data-deed="charity" onclick="toggleDeed('charity')">
+                                    <svg class="deed-icon" viewBox="0 0 24 24">
+                                        <path
+                                            d="M20 6h-2.18c.11-.31.18-.65.18-1 0-1.66-1.34-3-3-3-1.05 0-1.96.54-2.5 1.35l-.5.67-.5-.68C10.96 2.54 10.05 2 9 2 7.34 2 6 3.34 6 5c0 .35.07.69.18 1H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-5-2c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1 .45-1 1-1zm-9 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1 .45-1 1-1zm11 15H4v-2h16v2zm0-5H4V8h5.08L7 10.83 8.62 12 11 8.76l1-1.36 1 1.36L15.38 12 17 10.83 14.92 8H20v6z" />
+                                    </svg>
+                                    <div class="deed-label">Charity</div>
+                                </div>
+                                <div class="deed-box" data-deed="forgive" onclick="toggleDeed('forgive')">
+                                    <svg class="deed-icon" viewBox="0 0 24 24">
+                                        <path
+                                            d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                                    </svg>
+                                    <div class="deed-label">Forgiveness</div>
+                                </div>
+                                <div class="deed-box" data-deed="teach" onclick="toggleDeed('teach')">
+                                    <svg class="deed-icon" viewBox="0 0 24 24">
+                                        <path
+                                            d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L11 4h7v14H6V4z" />
+                                    </svg>
+                                    <div class="deed-label">Teaching</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- To-Do List -->
+                        <div class="card full-width">
+                            <div class="section-title">
+                                <svg viewBox="0 0 24 24">
+                                    <path
+                                        d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z" />
+                                </svg>
+                                To-Do List
+                            </div>
+                            <div id="todo-list">
+                                <!-- Rows will be injected by JS -->
+                            </div>
+                            <button class="btn-add" id="add-todo-btn" title="Add Task">+</button>
+                        </div>
+
+                        <!-- Reflection Journal -->
+                        <div class="card full-width">
+                            <div class="section-title">
+                                <svg viewBox="0 0 24 24">
+                                    <path
+                                        d="M9.24 8.19l3.54-3.54 3.53 3.54 1.41-1.42-4.94-4.94-4.95 4.94zM7 19h10v-2H7v2zm8.58-12.06l-4.24-4.24-.71.71 4.24 4.24.71-.71z" />
+                                </svg>
+                                Reflections & Intentions
+                            </div>
+                            <textarea id="intentions-input" rows="3" placeholder="Today's Intentions..."
+                                style="margin-bottom: 20px;"></textarea>
+                            <textarea id="reflection-input" rows="5"
+                                placeholder="What did Allah teach you today?"></textarea>
+                        </div>
+
+                    </div>
+                </div>
+
+                <button id="save-btn" class="btn-main">
+                    Save My Ramadan
+                </button>
+            </div>
+
+            <!-- Right Sidebar: Inspiration -->
+            <div class="sidebar hide-on-mobile">
+                <div class="sidebar-title">Ramadan Kareem</div>
+                <div class="inspiration-card" id="daily-dua">
+                    Loading Inspiration...
+                </div>
+                <div class="inspiration-card" style="margin-top: 20px; background: rgba(214, 180, 161, 0.2);">
+                    <div
+                        style="font-weight: bold; margin-bottom: 12px; border-bottom: 1px solid rgba(0,0,0,0.1); padding-bottom: 5px;">
+                        Names of Allah</div>
+                    <div id="names-wrapper">
+                        <!-- Names injected by JS -->
+                        <div style="margin-bottom: 8px;">
+                            <div class="arabic-name"
+                                style="font-family: 'Amiri', serif; font-size: 1.4rem; color: var(--primary-color);">
+                                loading...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <footer>
+            Made with 🤍 for your Iman
+        </footer>
+    </div>
+
+    <script>
+        // Modal Elements (Global Scope)
+        const profileModal = document.getElementById('profile-modal');
+        const userNameInput = document.getElementById('user-name');
+        const userEmailInput = document.getElementById('user-email');
+        const syncGoBtn = document.getElementById('sync-go-btn');
+        const statusDiv = document.getElementById('sync-status');
+
+        // Data Keys
+        const DATA_PREFIX = 'ramadan_planner_day_';
+        const PROFILE_KEY = 'ramadan_planner_profile';
+        let currentDay = 1;
+
+        // Migration check: If old data exists and new data doesn't, migrate old data to Day 1
+        const OLD_KEY = 'ramadan_planner_data';
+        if (localStorage.getItem(OLD_KEY) && !localStorage.getItem(DATA_PREFIX + '1')) {
+            localStorage.setItem(DATA_PREFIX + '1', localStorage.getItem(OLD_KEY));
+        }
+
+        // Selectors
+        const progressBar = document.getElementById('daily-progress');
+        const progressText = document.getElementById('progress-text');
+        const saveBtn = document.getElementById('save-btn');
+        const addTodoBtn = document.getElementById('add-todo-btn');
+        const todoList = document.getElementById('todo-list');
+        const cursorDot = document.querySelector('.cursor-dot');
+
+        // Audio
+        const sounds = {
+            click: document.getElementById('sound-click'),
+            hover: document.getElementById('sound-hover'),
+            success: document.getElementById('sound-success')
+        };
+
+        // Helper to play sound safely
+        function playSound(name) {
+            try {
+                if (sounds[name]) {
+                    sounds[name].currentTime = 0;
+                    sounds[name].play().catch(() => { });
+                }
+            } catch (e) { }
+        }
+
+        // --- Custom Cursor ---
+        document.addEventListener('mousemove', (e) => {
+            cursorDot.style.left = e.clientX + 'px';
+            cursorDot.style.top = e.clientY + 'px';
+        });
+
+        // Dynamic Cursor Listener
+        function refreshCursorListeners() {
+            document.querySelectorAll('a, button, input, textarea, .custom-checkbox, .btn-add, .day-circle').forEach(el => {
+                el.onmouseenter = () => { cursorDot.classList.add('active'); playSound('hover'); };
+                el.onmouseleave = () => cursorDot.classList.remove('active');
+            });
+        }
+
+        // --- Days Logic ---
+        function initDays() {
+            const container = document.getElementById('days-container');
+            container.innerHTML = '';
+            for (let i = 1; i <= 30; i++) {
+                const circle = document.createElement('div');
+                circle.classList.add('day-circle');
+                if (i === currentDay) circle.classList.add('active');
+                circle.innerText = i;
+                circle.title = `Day ${i}`;
+                circle.onclick = () => switchDay(i);
+                container.appendChild(circle);
+            }
+        }
+
+        function switchDay(day) {
+            if (day === currentDay) return;
+
+            // Visual Update
+            document.querySelectorAll('.day-circle').forEach(el => {
+                el.classList.toggle('active', parseInt(el.innerText) === day);
+            });
+
+            currentDay = day;
+
+            // Animation for transition
+            gsap.from("#planner", {
+                y: 20,
+                opacity: 0,
+                duration: 0.4,
+                ease: "power2.out"
+            });
+
+            loadData(); // Load new day data
+            playSound('click');
+        }
+
+        // --- Animations (GSAP) ---
+        gsap.from("header", { duration: 1.5, y: -50, opacity: 0, ease: "power3.out" });
+        gsap.utils.toArray('.card').forEach((card, i) => {
+            gsap.from(card, {
+                scrollTrigger: {
+                    trigger: card,
+                    start: "top 85%",
+                },
+                y: 50,
+                opacity: 0,
+                duration: 1,
+                delay: i * 0.1,
+                ease: "power3.out"
+            });
+        });
+
+        // Floating Lanterns
+        gsap.to(".lantern-1", { y: "+=15", duration: 2.5, repeat: -1, yoyo: true, ease: "sine.inOut" });
+        gsap.to(".lantern-2", { y: "-=10", duration: 3, repeat: -1, yoyo: true, ease: "sine.inOut", delay: 0.5 });
+        gsap.to(".lantern-3", { y: "+=12", duration: 2.8, repeat: -1, yoyo: true, ease: "sine.inOut", delay: 1 });
+
+        // Rotating Moon
+        gsap.to(".moon-decor", { rotation: 10, duration: 5, repeat: -1, yoyo: true, ease: "sine.inOut" });
+
+        // Particles
+        const particleContainer = document.getElementById('particles-container');
+        for (let i = 0; i < 30; i++) {
+            const p = document.createElement('div');
+            p.classList.add('particle');
+            p.style.left = Math.random() * 100 + '%';
+            p.style.top = Math.random() * 100 + '%';
+            p.style.width = Math.random() * 4 + 2 + 'px';
+            p.style.height = p.style.width;
+            p.style.animationDuration = Math.random() * 20 + 10 + 's';
+            particleContainer.appendChild(p);
+
+            gsap.to(p, {
+                y: "-=100",
+                x: "+=50",
+                opacity: 0,
+                duration: Math.random() * 10 + 10,
+                repeat: -1,
+                ease: "none"
+            });
+        }
+
+        // Initialize Chart
+        let salahChart;
+        function initChart(data, isTahajjud = false) {
+            const ctx = document.getElementById('salahChart');
+            if (!ctx) return;
+
+            // Apply Golden Glow if Tahajjud
+            if (isTahajjud) {
+                ctx.style.filter = "drop-shadow(0 0 15px gold)";
+            } else {
+                ctx.style.filter = "none";
+            }
+
+            const total = 5; // Always 5 Fardh prayers
+            const completed = Object.values(data).filter(v => v === true).length || 0;
+            const remaining = total - completed;
+
+            if (salahChart) salahChart.destroy();
+
+            salahChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Completed', 'Remaining'],
+                    datasets: [{
+                        data: [completed, remaining],
+                        backgroundColor: [
+                            '#8da399',
+                            'rgba(141, 163, 153, 0.2)'
+                        ],
+                        borderWidth: 0,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '70%',
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { enabled: false }
+                    },
+                    animation: {
+                        animateScale: true,
+                        animateRotate: true
+                    }
+                },
+                plugins: [{
+                    id: 'textCenter',
+                    beforeDraw: function (chart) {
+                        var width = chart.width,
+                            height = chart.height,
+                            ctx = chart.ctx;
+
+                        ctx.restore();
+                        // Adjust font size to fit better (smaller factor)
+                        var fontSize = (height / 160).toFixed(2);
+                        ctx.font = "bold " + fontSize + "em sans-serif";
+                        ctx.textBaseline = "middle";
+                        ctx.fillStyle = "#5d4037"; // Primary color
+
+                        var text1 = "Salah";
+                        var text2 = "Progress";
+
+                        var textX1 = Math.round((width - ctx.measureText(text1).width) / 2);
+                        var textX2 = Math.round((width - ctx.measureText(text2).width) / 2);
+                        var textY = height / 2;
+
+                        // Draw two lines with spacing
+                        ctx.fillText(text1, textX1, textY - 10);
+                        ctx.fillText(text2, textX2, textY + 15);
+                        ctx.save();
+                    }
+                }]
+            });
+        }
+
+        // --- Daily Content Data (Full 30 Days) ---
+
+        const ALL_DUAS = [
+            {
+                arabic: "رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الآخِرَةِ حَسَنَةً وَقِنَا عَذَابَ النَّارِ",
+                translation: "Our Lord! Give us in this world that which is good and in the Hereafter that which is good, and save us from the torment of the Fire.",
+                source: "Bukhari & Muslim"
+            },
+            {
+                arabic: "اللَّهُمَّ إِنَّكَ عُفُوٌّ تُحِبُّ الْعَفْوَ فَاعْفُ عَنِّي",
+                translation: "O Allah, You are Forgiving and love forgiveness, so forgive me.",
+                source: "Tirmidhi (Sahih)"
+            },
+            {
+                arabic: "يَا مُقَلِّبَ الْقُلُوبِ ثَبِّتْ قَلْبِي عَلَى دِينِكَ",
+                translation: "O Turner of the hearts, make my heart firm upon Your religion.",
+                source: "Tirmidhi (Sahih)"
+            },
+            {
+                arabic: "اللَّهُمَّ إِنِّي أَسْأَلُكَ النَّعِيمَ الْمُقِيمَ الَّذِي لَا يَحُولُ وَلَا يَزُولُ",
+                translation: "O Allah, I ask You for the lasting bliss that never changes nor ends.",
+                source: "Sahih Al-Jami"
+            },
+            {
+                arabic: "اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنَ الْعَجْزِ وَالْكَسَلِ وَالْجُبْنِ وَالْهَرَمِ وَالْبُخْلِ",
+                translation: "O Allah, I seek refuge in You from incapacity, laziness, cowardice, senility, and miserliness.",
+                source: "Muslim"
+            },
+            {
+                arabic: "اللَّهُمَّ إِنِّي أَسْأَلُكَ الْهُدَى وَالتُّقَى وَالْعَفَافَ وَالْغِنَى",
+                translation: "O Allah, I ask You for guidance, piety, chastity, and self-sufficiency.",
+                source: "Muslim"
+            },
+            {
+                arabic: "اللَّهُمَّ اغْفِرْ لِي وَارْحَمْنِي وَاهْدِنِي وَعَافِنِي وَارْزُقْنِي",
+                translation: "O Allah, forgive me, have mercy on me, guide me, heal me, and provide for me.",
+                source: "Muslim"
+            },
+            {
+                arabic: "اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنْ شَرِّ مَا عَمِلْتُ وَمِنْ شَرِّ مَا لَمْ أَعْمَلْ",
+                translation: "O Allah, I seek refuge in You from the evil of what I have done and from the evil of what I have not done.",
+                source: "Muslim"
+            },
+            {
+                arabic: "اللَّهُمَّ مُصَرِّفَ الْقُلُوبِ صَرِّفْ قُلُوبَنَا عَلَى طَاعَتِكَ",
+                translation: "O Allah, Turner of the hearts, turn our hearts to Your obedience.",
+                source: "Muslim"
+            },
+            {
+                arabic: "اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنْ زَوَالِ نِعْمَتِكَ وَتَحَوُّلِ عَافِيَتِكَ وَفُجَاءَةِ نِقْمَتِكَ وَجَمِيعِ سَخَطِكَ",
+                translation: "O Allah, I seek refuge in You from the withholding of Your favor, the decline of Your protection, the suddenness of Your punishment, and all that displeases You.",
+                source: "Muslim"
+            },
+            {
+                arabic: "رَبَّنَا لاَ تُزِغْ قُلُوبَنَا بَعْدَ إِذْ هَدَيْتَنَا وَهَبْ لَنَا مِن لَّدُنكَ رَحْمَةً",
+                translation: "Our Lord! Let not our hearts deviate (from the truth) after You have guided us, and grant us mercy from You.",
+                source: "Quran 3:8 (Recited by Prophet)"
+            },
+            {
+                arabic: "اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنَ الْبَرَصِ وَالْجُنُونِ وَالْجُذَامِ وَمِنْ سَيِّئِ الأَسْقَامِ",
+                translation: "O Allah, I seek refuge in You from leprosy, insanity, mutilation, and from all serious illness.",
+                source: "Abu Dawud (Sahih)"
+            },
+            {
+                arabic: "اللَّهُمَّ إِنِّي أَسْأَلُكَ عِلْمًا نَافِعًا وَرِزْقًا طَيِّبًا وَعَمَلاً مُتَقَبَّلاً",
+                translation: "O Allah, I ask You for beneficial knowledge, goodly provision, and acceptable deeds.",
+                source: "Ibn Majah (Sahih)"
+            },
+            {
+                arabic: "رَبِّ اغْفِرْ لِي وَتُبْ عَلَيَّ إِنَّكَ أَنْتَ التَّوَّابُ الرَّحِيمُ",
+                translation: "My Lord, forgive me and accept my repentance, properly You are the Accepter of Repentance, the Merciful.",
+                source: "Abu Dawud (Sahih)"
+            },
+            {
+                arabic: "اللَّهُمَّ أَنْتَ رَبِّي لاَ إِلَهَ إِلاَّ أَنْتَ، خَلَقْتَنِي وَأَنَا عَبْدُكَ...",
+                translation: "O Allah, You are my Lord, there is no god but You. You created me and I am Your slave...",
+                source: "Bukhari (Sayyidul Istighfar)"
+            },
+            {
+                arabic: "سُبْحَانَ اللهِ وَبِحَمْدِهِ عَدَدَ خَلْقِهِ وَرِضَا نَفْسِهِ وَزِنَةَ عَرْشِهِ وَمِدَادَ كَلِمَاتِهِ",
+                translation: "Glory be to Allah and His is the praise, (as much as) the number of His creation, the pleasure of His Self, the weight of His Throne, and the ink of His words.",
+                source: "Muslim"
+            },
+            {
+                arabic: "اللَّهُمَّ أَعِنِّي عَلَى ذِكْرِكَ وَشُكْرِكَ وَحُسْنِ عِبَادَتِكَ",
+                translation: "O Allah, help me to remember You, to give You thanks, and to perform Your worship in the best manner.",
+                source: "Abu Dawud (Sahih)"
+            },
+            {
+                arabic: "اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنَ الْكُفْرِ وَالْفَقْرِ وَعَذَابِ الْقَبْرِ",
+                translation: "O Allah, I seek refuge in You from disbelief, poverty, and the punishment of the grave.",
+                source: "Abu Dawud (Sahih)"
+            },
+            {
+                arabic: "اللَّهُمَّ إِنِّي أَسْأَلُكَ مِنْ خَيْرِ مَا سَأَلَكَ مِنْهُ نَبِيُّكَ مُحَمَّدٌ صَلَّى اللهُ عَلَيْهِ وَسَلَّمَ...",
+                translation: "O Allah, I ask You for the good that Your Prophet Muhammad (pbuh) asked You for...",
+                source: "Tirmidhi"
+            },
+            {
+                arabic: "رَبَّنَا هَبْ لَنَا مِنْ أَزْوَاجِنَا وَذُرِّيَّاتِنَا قُرَّةَ أَعْيُنٍ وَاجْعَلْنَا لِلْمُتَّقِينَ إِمَامًا",
+                translation: "Our Lord! Grant unto us wives and offspring who will be the comfort of our eyes, and give us (the grace) to lead the righteous.",
+                source: "Quran 25:74"
+            },
+            {
+                arabic: "اللَّهُمَّ إِنِّي أَسْأَلُكَ الْجَنَّةَ وَأَعُوذُ بِكَ مِنَ النَّارِ",
+                translation: "O Allah, I ask You for Paradise and I seek refuge in You from the Fire.",
+                source: "Abu Dawud (Sahih)"
+            },
+            {
+                arabic: "اللَّهُمَّ فَقِّهْنِي فِي الدِّينِ",
+                translation: "O Allah! Give me understanding of the religion.",
+                source: "Bukhari"
+            },
+            {
+                arabic: "يَا حَيُّ يَا قَيُّومُ بِرَحْمَتِكَ أَسْتَغِيثُ",
+                translation: "O Ever Living, O Self-Subsisting and Supporter of all, by Your mercy I seek assistance.",
+                source: "Tirmidhi"
+            },
+            {
+                arabic: "اللَّهُمَّ لاَ سَهْلَ إِلاَّ مَا جَعَلْتَهُ سَهْلاً، وَأَنْتَ تَجْعَلُ الْحَزْنَ إِذَا شِئْتَ سَهْلاً",
+                translation: "O Allah, there is no ease except in that which You have made easy, and You make the difficulty, if You wish, easy.",
+                source: "Ibn Hibban (Sahih)"
+            },
+            {
+                arabic: "اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنْ عِلْمٍ لاَ يَنْفَعُ وَمِنْ قَلْبٍ لاَ يَخْشَعُ...",
+                translation: "O Allah, I seek refuge in You from knowledge that does not benefit and from a heart that does not fear...",
+                source: "Muslim"
+            },
+            {
+                arabic: "اللَّهُمَّ أَحْسِنْ عَاقِبَتَنَا فِي الْأُمُورِ كُلِّهَا وَأَجِرْنَا مِنْ خِزْيِ الدُّنْيَا وَعَذَابِ الْآخِرَةِ",
+                translation: "O Allah, make our end better in all our affairs, and save us from disgrace in this world and from torment in the Hereafter.",
+                source: "Ahmad (Hasan)"
+            },
+            {
+                arabic: "رَبَّنَا أَفْرِغْ عَلَيْنَا صَبْرًا وَتَوَفَّنَا مُسْلِمِينَ",
+                translation: "Our Lord! Pour out on us patience, and cause us to die as Muslims.",
+                source: "Quran 7:126"
+            },
+            {
+                arabic: "اللَّهُمَّ إِنِّي أَسْأَلُكَ حُبَّكَ وَحُبَّ مَنْ يُحِبُّكَ",
+                translation: "O Allah, I ask You for Your love and the love of those who love You.",
+                source: "Tirmidhi (Sahih)"
+            },
+            {
+                arabic: "اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنْ مُنْكَرَاتِ الأَخْلاَقِ وَالأَعْمَالِ وَالأَهْوَاءِ",
+                translation: "O Allah, I seek refuge in You from evil character, evil actions, and evil desires.",
+                source: "Tirmidhi (Sahih)"
+            },
+            {
+                arabic: "اللَّهُمَّ إِنَّكَ عُفُوٌّ كَرِيمٌ تُحِبُّ الْعَفْوَ فَاعْفُ عَنِّي",
+                translation: "O Allah, You are Forgiving and Generous, and You love forgiveness, so forgive me.",
+                source: "Tirmidhi (Sahih)"
+            }
+        ];
+
+        const ALL_99_NAMES = [
+            { a: "Ar-Rahman", e: "The Beneficent" }, { a: "Ar-Rahim", e: "The Merciful" }, { a: "Al-Malik", e: "The King" },
+            { a: "Al-Quddus", e: "The Most Holy" }, { a: "As-Salam", e: "The Source of Peace" }, { a: "Al-Mu'min", e: "The Guardian of Faith" },
+            { a: "Al-Muhaymin", e: "The Protector" }, { a: "Al-Aziz", e: "The Mighty" }, { a: "Al-Jabbar", e: "The Compeller" },
+            { a: "Al-Mutakabbir", e: "The Majestic" }, { a: "Al-Khaliq", e: "The Creator" }, { a: "Al-Bari", e: "The Evolver" },
+            { a: "Al-Musawwir", e: "The Fashioner" }, { a: "Al-Ghaffar", e: "The Forgiver" }, { a: "Al-Qahhar", e: "The Subduer" },
+            { a: "Al-Wahhab", e: "The Bestower" }, { a: "Ar-Razzaq", e: "The Provider" }, { a: "Al-Fattah", e: "The Opener" },
+            { a: "Al-Alim", e: "The All-Knowing" }, { a: "Al-Qabid", e: "The Constrictor" }, { a: "Al-Basit", e: "The Expander" },
+            { a: "Al-Khafid", e: "The Abaser" }, { a: "Ar-Rafi", e: "The Exalter" }, { a: "Al-Mu'izz", e: "The Honorer" },
+            { a: "Al-Mudhill", e: "The Dishonorer" }, { a: "As-Sami", e: "The All-Hearing" }, { a: "Al-Basir", e: "The All-Seeing" },
+            { a: "Al-Hakam", e: "The Judge" }, { a: "Al-'Adl", e: "The Just" }, { a: "Al-Latif", e: "The Subtle One" },
+            { a: "Al-Khabir", e: "The All-Aware" }, { a: "Al-Halim", e: "The Forbearing" }, { a: "Al-Azim", e: "The Magnificent" },
+            { a: "Al-Ghafur", e: "The Forgiving" }, { a: "Ash-Shakur", e: "The Appreciative" }, { a: "Al-Ali", e: "The High" },
+            { a: "Al-Kabir", e: "The Great" }, { a: "Al-Hafiz", e: "The Preserver" }, { a: "Al-Muqit", e: "The Maintainer" },
+            { a: "Al-Hasib", e: "The Reckoner" }, { a: "Al-Jalil", e: "The Sublime One" }, { a: "Al-Karim", e: "The Generous" },
+            { a: "Ar-Raqib", e: "The Watchful" }, { a: "Al-Mujib", e: "The Responsive" }, { a: "Al-Wasi", e: "The All-Embracing" },
+            { a: "Al-Hakim", e: "The Wise" }, { a: "Al-Wadud", e: "The Loving" }, { a: "Al-Majid", e: "The All-Glorious" },
+            { a: "Al-Ba'ith", e: "The Resurrecting" }, { a: "Ash-Shahid", e: "The Witness" }, { a: "Al-Haqq", e: "The Truth" },
+            { a: "Al-Wakil", e: "The Trustee" }, { a: "Al-Qawiyy", e: "The Strong" }, { a: "Al-Matin", e: "The Firm" },
+            { a: "Al-Waliyy", e: "The Protecting Friend" }, { a: "Al-Hamid", e: "The Praiseworthy" }, { a: "Al-Muhsi", e: "The Accounter" },
+            { a: "Al-Mubdi", e: "The Originator" }, { a: "Al-Mu'id", e: "The Restorer" }, { a: "Al-Muhyi", e: "The Giver of Life" },
+            { a: "Al-Mumit", e: "The Taker of Life" }, { a: "Al-Hayy", e: "The Ever-Living" }, { a: "Al-Qayyum", e: "The Self-Subsisting" },
+            { a: "Al-Wajid", e: "The Finder" }, { a: "Al-Majid", e: "The Glorious" }, { a: "Al-Wahid", e: "The One" },
+            { a: "Al-Ahad", e: "The Unique" }, { a: "As-Samad", e: "The Eternal" }, { a: "Al-Qadir", e: "The Able" },
+            { a: "Al-Muqtadir", e: "The Powerful" }, { a: "Al-Muqaddim", e: "The Expediter" }, { a: "Al-Mu'akhkhir", e: "The Delayer" },
+            { a: "Al-Awwal", e: "The First" }, { a: "Al-Akhir", e: "The Last" }, { a: "Az-Zahir", e: "The Manifest" },
+            { a: "Al-Batin", e: "The Hidden" }, { a: "Al-Wali", e: "The Governor" }, { a: "Al-Muta'ali", e: "The Most Exalted" },
+            { a: "Al-Barr", e: "The Source of Goodness" }, { a: "At-Tawwab", e: "The Acceptor of Repentance" }, { a: "Al-Muntaqim", e: "The Avenger" },
+            { a: "Al-Afuww", e: "The Pardoner" }, { a: "Ar-Ra'uf", e: "The Compassionate" }, { a: "Malik-ul-Mulk", e: "The Eternal Owner" },
+            { a: "Dhul-Jalali-wal-Ikram", e: "Lord of Majesty" }, { a: "Al-Muqsit", e: "The Equitable" }, { a: "Al-Jami", e: "The Gatherer" },
+            { a: "Al-Ghaniyy", e: "The Self-Sufficient" }, { a: "Al-Mughni", e: "The Enricher" }, { a: "Al-Mani", e: "The Preventer" },
+            { a: "Ad-Darr", e: "The Creator of Harm" }, { a: "An-Nafi", e: "The Creator of Good" }, { a: "An-Nur", e: "The Light" },
+            { a: "Al-Hadi", e: "The Guide" }, { a: "Al-Badi", e: "The Incomparable" }, { a: "Al-Baqi", e: "The Everlasting" },
+            { a: "Al-Warith", e: "The Inheritor" }, { a: "Ar-Rashid", e: "The Righteous Teacher" }, { a: "As-Sabur", e: "The Patient" }
+        ];
+
+        function loadInspiration() {
+            const duaContainer = document.getElementById('daily-dua');
+            if (!duaContainer) return;
+
+            // 1. Get Dua for Current Day (Adjust for 0-index)
+            const duaIndex = (currentDay - 1) % ALL_DUAS.length;
+            const dailyDua = ALL_DUAS[duaIndex];
+
+            duaContainer.innerHTML = `
+                <div class="dua-arabic" style="font-family: 'Amiri', serif; font-size: 1.6rem; margin-bottom: 10px; color: var(--primary-color); line-height: 1.6;">${dailyDua.arabic}</div>
+                <div class="dua-translation" style="font-size: 0.95rem; font-style: italic; color: #555; margin-bottom: 5px;">"${dailyDua.translation}"</div>
+                <span class="inspiration-source">— ${dailyDua.source}</span>
+            `;
+
+            // 2. Get 99 Names for Current Day
+            // 3 names per day for days 1-29 (29 * 3 = 87)
+            // Day 30 gets the remaining 12 (87 + 12 = 99)
+            let start = 0;
+            let end = 0;
+            let namesForDay = [];
+
+            if (currentDay < 30) {
+                start = (currentDay - 1) * 3;
+                end = start + 3;
+            } else {
+                start = 87; // 29 * 3
+                end = 99;
+            }
+
+            namesForDay = ALL_99_NAMES.slice(start, end);
+
+            // Render Names
+            let html = '';
+            namesForDay.forEach(n => {
+                html += `<div style="margin-bottom: 8px;">
+                    <div class="arabic-name" style="font-family: 'Amiri', serif; font-size: 1.4rem; color: var(--primary-color);">${n.a}</div>
+                    <div class="english-meaning" style="font-size: 0.9rem; color: #666;">${n.e}</div>
+                </div>`;
+            });
+
+            // Replace the content of the container's parent or specific div
+            // We'll target the wrapper div in the HTML
+            const wrapper = document.getElementById('names-wrapper');
+            if (wrapper) wrapper.innerHTML = html;
+        }
+
+        // --- Logic ---
+
+        function createTodoRow(text = '', checked = false) {
+            const row = document.createElement('div');
+            row.classList.add('todo-row');
+
+            row.innerHTML = `
+                <div class="checkbox-wrapper">
+                    <input type="checkbox" class="custom-checkbox todo-check" ${checked ? 'checked' : ''}>
+                </div>
+                <input type="text" class="todo-input" placeholder="Task..." value="${text}">
+            `;
+
+            // Add listeners to new elements
+            const cb = row.querySelector('.todo-check');
+            const inp = row.querySelector('.todo-input');
+
+            cb.onchange = (e) => {
+                saveData();
+                playSound('click');
+                if (e.target.checked) createSparkles(e);
+            };
+
+            inp.addEventListener('input', saveData);
+
+            // Animation for new row
+            gsap.from(row, { height: 0, opacity: 0, duration: 0.3, ease: 'back.out' });
+
+            return row;
+        }
+
+        function addTodo() {
+            playSound('click');
+            const row = createTodoRow();
+            todoList.appendChild(row);
+            refreshCursorListeners();
+            saveData();
+        }
+
+        addTodoBtn.addEventListener('click', addTodo);
+
+        // Load Data
+        function loadData() {
+            const key = DATA_PREFIX + currentDay;
+            const data = JSON.parse(localStorage.getItem(key) || '{}');
+
+            // Static Inputs
+            const ids = ['quran-input', 'gratitude-input', 'intentions-input', 'reflection-input'];
+            ids.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.value = data[id] || '';
+            });
+
+            // Static Checkboxes (Salah)
+            let salahCounts = {};
+            let isTahajjud = false;
+            document.querySelectorAll('.salah-check').forEach(cb => {
+                const id = cb.getAttribute('data-id');
+                cb.checked = !!data[id];
+
+                if (id === 'tahajjud') {
+                    isTahajjud = !!data[id];
+                } else if (data[id]) {
+                    salahCounts[id] = true;
+                }
+
+                cb.onchange = (e) => {
+                    saveData(); // Save handles chart update
+                    playSound('click');
+                    if (e.target.checked) createSparkles(e);
+                };
+            });
+
+            initChart(salahCounts, isTahajjud);
+            loadInspiration(); // Refresh inspiration on day switch too? Maybe better to keep random for session or daily? 
+            // For now, let's keep it random on refresh, but stable on day switch unless we want new inspo per day.
+            // Actually, `loadInspiration` call is fine.
+
+            // Static Inputs Listeners - Re-attach isn't needed if we attach once, 
+            // BUT input values changed programmatically don't trigger 'input' events usually. 
+            // The listeners are attached to DOM elements which don't change.
+            // We just need to make sure `saveData` uses `currentDay`.
+
+            // To ensure listeners are active (they should be, elements are static):
+            document.querySelectorAll('input[type="text"]:not(.todo-input), textarea').forEach(el => {
+                el.oninput = saveData; // Use oninput property to avoid stacking
+            });
+
+            // Deeds
+            ['charity', 'forgive', 'teach'].forEach(type => {
+                const box = document.querySelector(`.deed-box[data-deed="${type}"]`);
+                if (box) {
+                    if (data['deed_' + type]) box.classList.add('active');
+                    else box.classList.remove('active');
+                }
+            });
+
+            // Todos
+            todoList.innerHTML = '';
+            if (data.todos && Array.isArray(data.todos) && data.todos.length > 0) {
+                data.todos.forEach(todo => {
+                    todoList.appendChild(createTodoRow(todo.text, todo.checked));
+                });
+            } else {
+                // Default 3 rows if empty
+                for (let i = 0; i < 3; i++) todoList.appendChild(createTodoRow());
+            }
+
+            checkTahajjudUnlock(false);
+            refreshCursorListeners();
+            updateProgress();
+        }
+
+        // Save Data
+        function saveData() {
+            const data = {};
+
+            // Static Inputs
+            const ids = ['quran-input', 'gratitude-input', 'intentions-input', 'reflection-input'];
+            ids.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) data[id] = el.value;
+            });
+
+            // Salah
+            let salahCounts = {};
+            let isTahajjud = false;
+            document.querySelectorAll('.salah-check').forEach(cb => {
+                const id = cb.getAttribute('data-id');
+                data[id] = cb.checked;
+
+                if (id === 'tahajjud') {
+                    isTahajjud = cb.checked;
+                } else {
+                    salahCounts[id] = cb.checked; // Only add if not tahajjud? Wait, initChart filters by value=true. 
+                    // Actually initChart takes `data` object. 
+                    // Let's explicitly only add non-tahajjud to salahCounts for the chart.
+                    if (cb.checked) salahCounts[id] = true;
+                }
+            });
+
+            initChart(salahCounts, isTahajjud);
+
+            // Initial Check for Tahajjud logic on load
+            setTimeout(checkTahajjudUnlock, 100);
+
+            // Deeds
+            ['charity', 'forgive', 'teach'].forEach(type => {
+                const box = document.querySelector(`.deed-box[data-deed="${type}"]`);
+                if (box) data['deed_' + type] = box.classList.contains('active');
+            });
+
+            // Todos
+            const todos = [];
+            document.querySelectorAll('.todo-row').forEach(row => {
+                todos.push({
+                    text: row.querySelector('.todo-input').value,
+                    checked: row.querySelector('.todo-check').checked
+                });
+            });
+            data.todos = todos;
+
+            localStorage.setItem(DATA_PREFIX + currentDay, JSON.stringify(data));
+            updateProgress();
+
+            // Check Tahajjud Logic on Save
+            checkTahajjudUnlock();
+
+            // Trigger Autosave
+            if (typeof triggerAutosave === 'function') triggerAutosave();
+        }
+
+        // Tahajjud Unlock Logic
+        function checkTahajjudUnlock(playEffect = true) {
+            const ishaCb = document.getElementById('isha-checkbox');
+            const tahajjudRow = document.getElementById('tahajjud-row');
+            const tahajjudCb = document.getElementById('tahajjud-checkbox');
+
+            if (!ishaCb || !tahajjudRow) return;
+
+            if (ishaCb.checked) {
+                // Unlock
+                // If already unlocked, do nothing unless we need to ensure state (idempotent)
+                if (tahajjudRow.classList.contains('tahajjud-disabled')) {
+                    tahajjudRow.classList.remove('tahajjud-disabled');
+                    tahajjudRow.classList.add('tahajjud-unlocked');
+                    tahajjudCb.disabled = false;
+                    if (playEffect) playSound('success');
+                }
+            } else {
+                // Lock
+                tahajjudRow.classList.add('tahajjud-disabled');
+                tahajjudRow.classList.remove('tahajjud-unlocked');
+                tahajjudCb.disabled = true;
+                // Don't uncheck it here if we are just loading? 
+                // Actually if Isha is unchecked, Tahajjud MUST be locked and unchecked logically.
+                if (tahajjudCb.checked) {
+                    tahajjudCb.checked = false;
+                    // If we uncheck it programmatically, we might need to save? 
+                    // But this runs during load or save. 
+                    // If runs during load, and we uncheck, we strictly adhere to rule: No Isha = No Tahajjud.
+                }
+            }
+        }
+
+        // Update Progress
+        function updateProgress() {
+            const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+            const deeds = document.querySelectorAll('.deed-box');
+
+            const totalChecks = checkboxes.length + deeds.length;
+
+            const checkedBoxes = Array.from(checkboxes).filter(cb => cb.checked).length;
+            const completedDeeds = Array.from(deeds).filter(d => d.classList.contains('active')).length;
+
+            const checked = checkedBoxes + completedDeeds;
+            const percent = totalChecks === 0 ? 0 : Math.round((checked / totalChecks) * 100);
+
+            progressBar.style.width = percent + '%';
+            progressText.innerText = percent + '% Completed';
+
+            // Check for Perfect Day
+            if (percent === 100 && totalChecks > 0) {
+                // Check if already celebrated for this session/day to avoid spam
+                // We'll use a session flag or just check if modal is open
+                const modal = document.getElementById('celebration-modal');
+                if (!modal.classList.contains('modal-active')) {
+                    showCelebration();
+                }
+            }
+        }
+
+        // Create Confetti Canvas
+        const confettiCanvas = document.createElement('canvas');
+        confettiCanvas.style.position = 'fixed';
+        confettiCanvas.style.top = '0';
+        confettiCanvas.style.left = '0';
+        confettiCanvas.style.width = '100%';
+        confettiCanvas.style.height = '100%';
+        confettiCanvas.style.pointerEvents = 'none';
+        confettiCanvas.style.zIndex = '10001'; // Above everything
+        document.body.appendChild(confettiCanvas);
+
+        const myConfetti = confetti.create(confettiCanvas, {
+            resize: true,
+            useWorker: true
+        });
+
+        // Celebration Logic
+        function showCelebration() {
+            const modal = document.getElementById('celebration-modal');
+            modal.classList.add('modal-active');
+            playSound('success');
+
+            // 1. Side Cannons (Burst)
+            const burstDefaults = { spread: 60, particleCount: 100, startVelocity: 40 };
+
+            // Left Cannon
+            myConfetti({ ...burstDefaults, origin: { x: 0.1, y: 0.8 }, angle: 60 });
+            // Right Cannon
+            myConfetti({ ...burstDefaults, origin: { x: 0.9, y: 0.8 }, angle: 120 });
+
+            // 2. Falling Rain (Duration)
+            var duration = 3 * 1000;
+            var animationEnd = Date.now() + duration;
+            var rainDefaults = { startVelocity: 30, spread: 360, ticks: 60 };
+
+            function randomInRange(min, max) { return Math.random() * (max - min) + min; }
+
+            var interval = setInterval(function () {
+                var timeLeft = animationEnd - Date.now();
+
+                if (timeLeft <= 0) {
+                    return clearInterval(interval);
+                }
+
+                var particleCount = 50 * (timeLeft / duration);
+
+                myConfetti(Object.assign({}, rainDefaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } }));
+                myConfetti(Object.assign({}, rainDefaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } }));
+            }, 250);
+        }
+
+        function closeCelebration() {
+            document.getElementById('celebration-modal').classList.remove('modal-active');
+        }
+
+        // Sparkle Effect
+        function createSparkles(e) {
+            const rect = e.target.getBoundingClientRect();
+            for (let i = 0; i < 5; i++) {
+                const sparkle = document.createElement('div');
+                sparkle.classList.add('sparkle-effect');
+                document.body.appendChild(sparkle);
+
+                const size = Math.random() * 10 + 5 + 'px';
+                sparkle.style.width = size;
+                sparkle.style.height = size;
+                sparkle.style.left = rect.left + rect.width / 2 + (Math.random() * 40 - 20) + 'px';
+                sparkle.style.top = rect.top + rect.height / 2 + (Math.random() * 40 - 20) + 'px';
+
+                gsap.to(sparkle, {
+                    y: -50,
+                    x: (Math.random() * 40 - 20),
+                    opacity: 0,
+                    scale: 0,
+                    duration: 0.8,
+                    onComplete: () => sparkle.remove()
+                });
+            }
+        }
+
+        // Good Deeds Logic
+        function toggleDeed(type) {
+            const box = document.querySelector(`.deed-box[data-deed="${type}"]`);
+            if (box) {
+                box.classList.toggle('active');
+                if (box.classList.contains('active')) playSound('success');
+                else playSound('click');
+                saveData();
+            }
+        }
+
+        // Save Image w/ html2canvas
+        saveBtn.addEventListener('click', async () => {
+            playSound('click');
+            saveBtn.innerHTML = 'Saving... ✨';
+
+            // Allow animations to settle
+            await new Promise(r => setTimeout(r, 200));
+
+            try {
+                const element = document.getElementById('planner');
+                const canvas = await html2canvas(element, {
+                    backgroundColor: null,
+                    scale: 2,
+                    useCORS: true,
+                    logging: false,
+                    ignoreElements: (el) => el.classList.contains('btn-add')
+                });
+
+                const link = document.createElement('a');
+                link.download = `ramadan-planner-day-${currentDay}.png`; // Update filename
+                link.href = canvas.toDataURL();
+                link.click();
+
+                playSound('success');
+                saveBtn.innerHTML = 'Save My Ramadan';
+
+                gsap.to(saveBtn, { scale: 1.2, duration: 0.2, yoyo: true, repeat: 1 });
+
+            } catch (err) {
+                console.error(err);
+                saveBtn.innerHTML = 'Error! Try Again';
+            }
+        });
+
+        // User Profile Logic
+        // Inputs are now defined in global scope for modal access
+
+        function loadProfile() {
+            const profile = JSON.parse(localStorage.getItem(PROFILE_KEY) || '{}');
+            if (profile.name) userNameInput.value = profile.name;
+            if (profile.email) userEmailInput.value = profile.email;
+
+            // Open modal if no email, or just open it on load as requested
+            profileModal.classList.add('modal-active');
+        }
+
+        function saveProfile() {
+            const profile = { name: userNameInput.value, email: userEmailInput.value };
+            localStorage.setItem(PROFILE_KEY, JSON.stringify(profile));
+            if (typeof triggerAutosave === 'function') triggerAutosave();
+        }
+
+        [userNameInput, userEmailInput].forEach(input => {
+            input.addEventListener('input', saveProfile);
+        });
+
+        // Google Sheets Sync
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxhU4oGYMfzv7u0fRmNgm6rA4cL7SdPAduVfw654Q1efC9V9MzujpWbT8hmyf4x_uvX/exec';
+        let isSynced = false;
+        let autosaveTimeout;
+
+        function updateStatus(msg, type = 'info') {
+            statusDiv.innerText = msg;
+            statusDiv.style.color = type === 'error' ? 'red' : 'var(--primary-color)';
+        }
+
+        async function performSync() {
+            const email = userEmailInput.value;
+            if (!email) { updateStatus('Please enter email to sync!', 'error'); return; }
+
+            updateStatus('Checking cloud...', 'loading');
+            syncGoBtn.disabled = true;
+            syncGoBtn.innerText = '⌛';
+
+            try {
+                // 1. Check if user exists (Try GET)
+                const response = await fetch(`${SCRIPT_URL}?email=${encodeURIComponent(email)}`);
+                const result = await response.json();
+
+                if (result.status === 'success' && result.data) {
+                    // User exists -> Restore
+                    const remoteData = JSON.parse(result.data);
+
+                    // Restore to localStorage
+                    Object.keys(remoteData).forEach(key => {
+                        localStorage.setItem(key, remoteData[key]);
+                    });
+
+                    updateStatus('Restored! Welcome back.', 'success');
+                    playSound('success');
+
+                    // Close Modal & Refresh UI
+                    setTimeout(() => {
+                        startSession();
+                    }, 1000);
+
+                } else {
+                    // User new -> Save current data
+                    await saveDataToCloud();
+                    updateStatus('Profile created! ✅', 'success');
+                    playSound('success');
+
+                    // Close Modal
+                    setTimeout(() => {
+                        startSession();
+                    }, 1000);
+                }
+
+            } catch (e) {
+                updateStatus('Sync error. check connection.', 'error');
+                console.error(e);
+            } finally {
+                syncGoBtn.disabled = false;
+                syncGoBtn.innerText = '🚀 Lets Go';
+            }
+        }
+
+        function startSession() {
+            profileModal.classList.remove('modal-active');
+            isSynced = true;
+            enableAutosave();
+            loadData(); // Refresh UI with restored data
+            initDays();
+            // Save profile to ensure it is in LS for this session
+            saveProfile();
+
+            // Trigger autosave to ensure remote is consistent if new
+            // if(typeof triggerAutosave === 'function') triggerAutosave();
+        }
+
+        async function saveDataToCloud() {
+            const email = userEmailInput.value;
+            if (!email) return;
+
+            // Gather all relevant data
+            const payload = {};
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key.startsWith('ramadan_planner_')) {
+                    payload[key] = localStorage.getItem(key);
+                }
+            }
+
+            try {
+                await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ email: email, data: JSON.stringify(payload) })
+                });
+            } catch (e) { console.error("Autosave failed", e); }
+        }
+
+        function triggerAutosave() {
+            if (!isSynced) return;
+            updateStatus('Values changed...', 'info');
+            clearTimeout(autosaveTimeout);
+            autosaveTimeout = setTimeout(async () => {
+                updateStatus('Autosaving...', 'loading');
+                await saveDataToCloud();
+                updateStatus('Saved to Cloud ✅', 'success');
+            }, 2000); // 2 second debounce
+        }
+
+        function enableAutosave() {
+            if (window.autosaveEnabled) return;
+            window.autosaveEnabled = true;
+            // Logic is now hooked via triggerAutosave calls in saveData/saveProfile
+        }
+
+        if (syncGoBtn) syncGoBtn.addEventListener('click', performSync);
+
+        // Init - Sheet-Only Mode: Clear Local Data on Load
+        Object.keys(localStorage).forEach(key => {
+            if (key.startsWith('ramadan_planner_')) localStorage.removeItem(key);
+        });
+
+        initDays();
+        refreshCursorListeners();
+        loadData();
+        loadProfile();
+
+    </script>
+</body>
+
+</html>
