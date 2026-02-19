@@ -1882,6 +1882,8 @@
             }
 
             // Load Juz Tracker (Global)
+            // Ensure memory matches storage (critical after sync)
+            globalJuzData = JSON.parse(localStorage.getItem('ramadan_planner_juz_data') || '{}');
             renderJuzTracker();
             // Re-attach listeners is handled in renderJuzTracker or we can do it here if render doesn't attach
             // renderJuzTracker attaches listeners
