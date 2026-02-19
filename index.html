@@ -862,15 +862,6 @@
 
 <body>
 
-    <!-- Audio Elements -->
-    <!-- Using generic reliable short sounds -->
-    <audio id="sound-click" src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3"
-        preload="auto"></audio>
-    <audio id="sound-hover" src="https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3"
-        preload="auto"></audio>
-    <audio id="sound-success" src="https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3"
-        preload="auto"></audio>
-
     <!-- Background Particles -->
     <div id="particles-container"></div>
 
@@ -886,7 +877,7 @@
         <!-- Profile Modal -->
         <div class="modal-overlay" id="profile-modal">
             <div class="modal-content">
-                <div class="modal-title">Welcome Back 🌙</div>
+                <div class="modal-title">As Salamu Alaikum 🌙</div>
                 <div class="subtitle" style="margin-bottom: 20px; color: #666; font-size: 0.9rem;">
                     Enter your details to sync your progress.
                 </div>
@@ -1069,7 +1060,7 @@
                 </div>
 
                 <button id="save-btn" class="btn-main">
-                    Save My Ramadan
+                    Save My Progress
                 </button>
             </div>
 
@@ -1128,21 +1119,60 @@
         const todoList = document.getElementById('todo-list');
         const cursorDot = document.querySelector('.cursor-dot');
 
-        // Audio
-        const sounds = {
-            click: document.getElementById('sound-click'),
-            hover: document.getElementById('sound-hover'),
-            success: document.getElementById('sound-success')
-        };
+        // Audio Context (Synthesized Sounds)
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-        // Helper to play sound safely
-        function playSound(name) {
-            try {
-                if (sounds[name]) {
-                    sounds[name].currentTime = 0;
-                    sounds[name].play().catch(() => { });
-                }
-            } catch (e) { }
+        function playSound(type) {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+
+            osc.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+
+            const now = audioCtx.currentTime;
+
+            if (type === 'click') {
+                // Short "pop"
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(800, now);
+                osc.frequency.exponentialRampToValueAtTime(300, now + 0.1);
+                gainNode.gain.setValueAtTime(0.1, now);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+                osc.start(now);
+                osc.stop(now + 0.1);
+            } else if (type === 'hover') {
+                // Very subtle "tick"
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(400, now);
+                gainNode.gain.setValueAtTime(0.05, now);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+                osc.start(now);
+                osc.stop(now + 0.05);
+            } else if (type === 'success') {
+                // Nice "Chime"
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(500, now);
+                osc.frequency.exponentialRampToValueAtTime(1000, now + 0.1);
+                gainNode.gain.setValueAtTime(0.1, now);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+
+                // Add a second harmonic for richness
+                const osc2 = audioCtx.createOscillator();
+                const gain2 = audioCtx.createGain();
+                osc2.connect(gain2);
+                gain2.connect(audioCtx.destination);
+                osc2.type = 'triangle';
+                osc2.frequency.setValueAtTime(800, now);
+                osc2.frequency.exponentialRampToValueAtTime(1500, now + 0.1);
+                gain2.gain.setValueAtTime(0.05, now);
+                gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
+
+                osc.start(now);
+                osc.stop(now + 0.5);
+                osc2.start(now);
+                osc2.stop(now + 0.5);
+            }
         }
 
         // --- Custom Cursor ---
@@ -1153,7 +1183,8 @@
 
         // Dynamic Cursor Listener
         function refreshCursorListeners() {
-            document.querySelectorAll('a, button, input, textarea, .custom-checkbox, .btn-add, .day-circle').forEach(el => {
+            // Added .deed-box to selectors
+            document.querySelectorAll('a, button, input, textarea, .custom-checkbox, .btn-add, .day-circle, .deed-box').forEach(el => {
                 el.onmouseenter = () => { cursorDot.classList.add('active'); playSound('hover'); };
                 el.onmouseleave = () => cursorDot.classList.remove('active');
             });
@@ -1871,44 +1902,83 @@
         function toggleDeed(type) {
             const box = document.querySelector(`.deed-box[data-deed="${type}"]`);
             if (box) {
+                // Determine if we are activating or deactivating
+                const isActive = box.classList.contains('active');
+
+                // Toggle
                 box.classList.toggle('active');
-                if (box.classList.contains('active')) playSound('success');
-                else playSound('click');
+
+                // Play Sound - Force specific sounds
+                if (!isActive) {
+                    // Was not active, now active -> Success Sound
+                    playSound('success');
+                } else {
+                    // Was active, now inactive -> Click Sound
+                    playSound('click');
+                }
+
+                // Add a visual pop effect
+                gsap.from(box, { scale: 0.9, duration: 0.2, ease: "back.out(1.7)" });
+
                 saveData();
             }
         }
 
         // Save Image w/ html2canvas
+        // Save Image w/ html2canvas
         saveBtn.addEventListener('click', async () => {
             playSound('click');
+            const originalText = saveBtn.innerHTML;
             saveBtn.innerHTML = 'Saving... ✨';
 
             // Allow animations to settle
             await new Promise(r => setTimeout(r, 200));
 
             try {
-                const element = document.getElementById('planner');
+                // Target the main container to avoid body scroll/viewport issues
+                const element = document.querySelector('.container');
+
+                // Temporarily ensure container has a background (if it relies on body)
+                // But we can set backgroundColor in html2canvas options
+
                 const canvas = await html2canvas(element, {
-                    backgroundColor: null,
-                    scale: 2,
+                    backgroundColor: '#fdfbf7', // Explicit cream color matching CSS
+                    scale: 2, // High resolution
                     useCORS: true,
                     logging: false,
-                    ignoreElements: (el) => el.classList.contains('btn-add')
+                    ignoreElements: (el) => {
+                        return el.id === 'save-btn' || el.classList.contains('cursor-dot') || el.id === 'particles-container' || el.classList.contains('modal-overlay');
+                    },
+                    // Force the capture to start from top-left of the element
+                    windowWidth: element.scrollWidth,
+                    windowHeight: element.scrollHeight,
+                    x: 0,
+                    y: 0,
+                    scrollX: 0,
+                    scrollY: 0
                 });
 
                 const link = document.createElement('a');
-                link.download = `ramadan-planner-day-${currentDay}.png`; // Update filename
+                // Format timestamp for filename
+                const date = new Date().toISOString().slice(0, 10);
+                link.download = `ramadan-planner-${date}.png`;
                 link.href = canvas.toDataURL();
                 link.click();
 
                 playSound('success');
-                saveBtn.innerHTML = 'Save My Ramadan';
+                saveBtn.innerHTML = 'Saved! 🌙';
+
+                // Revert button text after a delay
+                setTimeout(() => {
+                    saveBtn.innerHTML = originalText;
+                }, 2000);
 
                 gsap.to(saveBtn, { scale: 1.2, duration: 0.2, yoyo: true, repeat: 1 });
 
             } catch (err) {
                 console.error(err);
                 saveBtn.innerHTML = 'Error! Try Again';
+                setTimeout(() => saveBtn.innerHTML = originalText, 2000);
             }
         });
 
@@ -1935,7 +2005,7 @@
         });
 
         // Google Sheets Sync
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxhU4oGYMfzv7u0fRmNgm6rA4cL7SdPAduVfw654Q1efC9V9MzujpWbT8hmyf4x_uvX/exec';
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyEzXMQb-5Gd8Ipq72JahDsQ0z22D_TsXYtOeUn5k3NAbZySGP0npXfYn6OD6pF_nJ7gA/exec';
         let isSynced = false;
         let autosaveTimeout;
 
