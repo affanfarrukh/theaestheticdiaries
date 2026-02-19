@@ -506,6 +506,55 @@
             overflow: hidden;
         }
 
+        /* Dhikr Counter */
+        .dhikr-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .dhikr-box {
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 15px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 1px solid transparent;
+            user-select: none;
+        }
+
+        .dhikr-box:hover {
+            background: rgba(255, 255, 255, 0.9);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .dhikr-box:active {
+            transform: scale(0.95);
+        }
+
+        .dhikr-box.glow-gold {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 215, 0, 0.2));
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
+            border: 1px solid rgba(255, 215, 0, 0.5);
+        }
+
+        .dhikr-label {
+            font-size: 0.9rem;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .dhikr-count {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-color);
+            font-family: var(--font-heading);
+        }
+
         .deed-box:hover {
             transform: translateY(-3px);
             background: rgba(255, 255, 255, 0.8);
@@ -1166,6 +1215,28 @@
                             </div>
 
 
+                        </div>
+
+
+                        <!-- Dhikr Counter -->
+                        <div class="card full-width">
+                            <div class="section-title">
+                                <span style="font-size: 1.2rem; margin-right: 8px;">📿</span> Dhikr
+                            </div>
+                            <div class="dhikr-grid">
+                                <div class="dhikr-box" onclick="incrementDhikr('alhamdulillah')">
+                                    <div class="dhikr-label">Alhamdulillah</div>
+                                    <div class="dhikr-count" id="count-alhamdulillah">0</div>
+                                </div>
+                                <div class="dhikr-box" onclick="incrementDhikr('astaghfirullah')">
+                                    <div class="dhikr-label">Astaghfirullah</div>
+                                    <div class="dhikr-count" id="count-astaghfirullah">0</div>
+                                </div>
+                                <div class="dhikr-box" onclick="incrementDhikr('allahuakbar')">
+                                    <div class="dhikr-label">Allahu Akbar</div>
+                                    <div class="dhikr-count" id="count-allahuakbar">0</div>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- Good Deeds Tracker -->
@@ -1847,6 +1918,23 @@
             });
 
             initChart(salahCounts, isTahajjud);
+
+            // Dhikr Load
+            const dhikrData = data.dhikr || {};
+            ['alhamdulillah', 'astaghfirullah', 'allahuakbar'].forEach(type => {
+                const el = document.getElementById(`count-${type}`);
+                if (el) {
+                    const count = dhikrData[type] || 0;
+                    el.innerText = count;
+                    // Restore Glow
+                    if (count >= 100) {
+                        el.closest('.dhikr-box').classList.add('glow-gold');
+                    } else {
+                        el.closest('.dhikr-box').classList.remove('glow-gold');
+                    }
+                }
+            });
+
             loadInspiration(); // Refresh inspiration on day switch too? Maybe better to keep random for session or daily? 
             // For now, let's keep it random on refresh, but stable on day switch unless we want new inspo per day.
             // Actually, `loadInspiration` call is fine.
@@ -1928,6 +2016,14 @@
             });
 
             initChart(salahCounts, isTahajjud);
+
+            // Dhikr
+            const dhikr = {};
+            ['alhamdulillah', 'astaghfirullah', 'allahuakbar'].forEach(type => {
+                const el = document.getElementById(`count-${type}`);
+                if (el) dhikr[type] = parseInt(el.innerText) || 0;
+            });
+            data.dhikr = dhikr;
 
             // Initial Check for Tahajjud logic on load
             setTimeout(checkTahajjudUnlock, 100);
@@ -2016,12 +2112,23 @@
 
             const deeds = document.querySelectorAll('.deed-box');
 
-            const totalChecks = trackedCheckboxes.length + deeds.length;
+            // Dhikr Progress
+            // 3 items. Each completed if count >= 100.
+            const dhikrItems = ['alhamdulillah', 'astaghfirullah', 'allahuakbar'];
+            let dhikrCompleted = 0;
+            dhikrItems.forEach(type => {
+                const el = document.getElementById(`count-${type}`);
+                if (el && parseInt(el.innerText) >= 100) {
+                    dhikrCompleted++;
+                }
+            });
+
+            const totalChecks = trackedCheckboxes.length + deeds.length + dhikrItems.length;
 
             const checkedBoxes = trackedCheckboxes.filter(cb => cb.checked).length;
             const completedDeeds = Array.from(deeds).filter(d => d.classList.contains('active')).length;
 
-            const checked = checkedBoxes + completedDeeds;
+            const checked = checkedBoxes + completedDeeds + dhikrCompleted;
             const percent = totalChecks === 0 ? 0 : Math.round((checked / totalChecks) * 100);
 
             progressBar.style.width = percent + '%';
@@ -2140,6 +2247,35 @@
                 // Add a visual pop effect
                 gsap.from(box, { scale: 0.9, duration: 0.2, ease: "back.out(1.7)" });
 
+                saveData();
+            }
+        }
+
+        // Dhikr Logic
+        function incrementDhikr(type) {
+            const countEl = document.getElementById(`count-${type}`);
+            if (countEl) {
+                let count = parseInt(countEl.innerText) || 0;
+                count++;
+                countEl.innerText = count;
+
+                // Animation - Force reset to 1 at end to prevent shrinking accumulation
+                gsap.fromTo(countEl, { scale: 1.5 }, { scale: 1, duration: 0.2, ease: "back.out(1.7)", overwrite: true });
+                playSound('click');
+
+                // Check for Glow (100)
+                const box = countEl.closest('.dhikr-box');
+                if (count >= 100) {
+                    if (!box.classList.contains('glow-gold')) {
+                        box.classList.add('glow-gold');
+                        playSound('success'); // Celebration sound for hitting 100
+                        gsap.from(box, { duration: 0.5, boxShadow: "0 0 40px gold", yoyo: true, repeat: 1, clearProps: "boxShadow" });
+                    }
+                } else {
+                    box.classList.remove('glow-gold');
+                }
+
+                // Save
                 saveData();
             }
         }
