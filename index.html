@@ -752,6 +752,15 @@
             border-color: var(--primary-color);
         }
 
+        .day-circle.glow-gold {
+            box-shadow: 0 0 15px gold;
+            border-color: #ffd700;
+            background: linear-gradient(135deg, #ffd700, #ffb347);
+            /* Gold to Pastel Orange */
+            color: #fff;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
         /* User Profile Inputs */
         .profile-inputs {
             display: flex;
@@ -2018,11 +2027,21 @@
                 if (el) {
                     const count = dhikrData[type] || 0;
                     el.innerText = count;
-                    // Restore Glow
-                    if (count >= 100) {
-                        el.closest('.dhikr-box').classList.add('glow-gold');
-                    } else {
-                        el.closest('.dhikr-box').classList.remove('glow-gold');
+
+                    // Restore Glow State
+                    const box = el.closest('.dhikr-box');
+                    if (box) {
+                        // Clear any lingering GSAP inline styles that might force a shadow
+                        gsap.set(box, { clearProps: "boxShadow" });
+
+                        if (count >= 100) {
+                            box.classList.add('glow-gold');
+                            // Optional: Add static shadow if class isn't enough due to overrides
+                            // box.style.boxShadow = "0 0 15px gold"; 
+                        } else {
+                            box.classList.remove('glow-gold');
+                            box.style.boxShadow = "none"; // Force remove inline shadow
+                        }
                     }
                 }
             });
@@ -2073,10 +2092,61 @@
 
             checkTahajjudUnlock(false);
             refreshCursorListeners();
-            checkTahajjudUnlock(false);
-            refreshCursorListeners();
             updateProgress();
             updateQuranChart();
+            checkAllDaysProgress();
+        }
+
+        function calculateProgressFromData(data) {
+            let total = 0;
+            let completed = 0;
+
+            // 1. Salah
+            const salahIds = ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha', 'tahajjud'];
+            total += salahIds.length;
+            salahIds.forEach(id => {
+                if (data[id]) completed++;
+            });
+
+            // 2. Deeds
+            const deeds = ['charity', 'forgive', 'teach'];
+            total += deeds.length;
+            deeds.forEach(id => {
+                if (data['deed_' + id]) completed++;
+            });
+
+            // 3. Dhikr
+            const dhikr = ['alhamdulillah', 'astaghfirullah', 'allahuakbar'];
+            total += dhikr.length;
+            if (data.dhikr) {
+                dhikr.forEach(id => {
+                    if ((data.dhikr[id] || 0) >= 100) completed++;
+                });
+            }
+
+            // 4. Todos
+            if (data.todos && Array.isArray(data.todos) && data.todos.length > 0) {
+                total += data.todos.length;
+                data.todos.forEach(t => {
+                    if (t.checked) completed++;
+                });
+            } else {
+                total += 3;
+            }
+
+            return total === 0 ? 0 : Math.round((completed / total) * 100);
+        }
+
+        function checkAllDaysProgress() {
+            for (let i = 1; i <= 30; i++) {
+                const data = JSON.parse(localStorage.getItem(DATA_PREFIX + i) || '{}');
+                const percent = calculateProgressFromData(data);
+                const circle = document.querySelectorAll('.day-circle')[i - 1];
+                if (circle) {
+                    if (percent === 100) circle.classList.add('glow-gold');
+                    else circle.classList.remove('glow-gold');
+                }
+            }
         }
 
         // Save Data
@@ -2218,14 +2288,40 @@
 
             const totalChecks = trackedCheckboxes.length + deeds.length + dhikrItems.length;
 
-            const checkedBoxes = trackedCheckboxes.filter(cb => cb.checked).length;
-            const completedDeeds = Array.from(deeds).filter(d => d.classList.contains('active')).length;
+            // Calculate Completed
+            let completedChecks = 0;
+            trackedCheckboxes.forEach(cb => { if (cb.checked) completedChecks++; });
 
-            const checked = checkedBoxes + completedDeeds + dhikrCompleted;
-            const percent = totalChecks === 0 ? 0 : Math.round((checked / totalChecks) * 100);
+            // Deeds
+            deeds.forEach(box => { if (box.classList.contains('active')) completedChecks++; });
 
-            progressBar.style.width = percent + '%';
-            progressText.innerText = percent + '% Completed';
+            // Dhikr
+            completedChecks += dhikrCompleted;
+
+            const percent = totalChecks === 0 ? 0 : Math.round((completedChecks / totalChecks) * 100);
+
+            // Update UI
+            const barFill = document.getElementById('daily-progress');
+            const progressText = document.getElementById('progress-text');
+
+            if (barFill) barFill.style.width = percent + '%';
+            if (progressText) progressText.innerText = percent + '% Completed';
+
+            // Glow Effect on Bar
+            if (percent === 100) {
+                if (barFill) barFill.style.boxShadow = "0 0 15px gold";
+            } else {
+                if (barFill) barFill.style.boxShadow = "none";
+            }
+
+            // Update Day Circle (Dynamic)
+            const currentDayCircle = document.querySelectorAll('.day-circle')[currentDay - 1];
+            if (currentDayCircle) {
+                if (percent === 100) currentDayCircle.classList.add('glow-gold');
+                else currentDayCircle.classList.remove('glow-gold');
+            }
+
+
 
             // Check for Perfect Day
             if (percent === 100 && totalChecks > 0) {
@@ -2525,6 +2621,9 @@
                         currentDay = maxDayFallback;
                     }
 
+                    // Explicitly update day circles based on the newly synced data
+                    checkAllDaysProgress();
+
                     updateStatus('Restored! Welcome back.', 'success');
                     playSound('success');
 
@@ -2558,8 +2657,8 @@
             profileModal.classList.remove('modal-active');
             isSynced = true;
             enableAutosave();
-            loadData(); // Refresh UI with restored data
-            initDays();
+            initDays(); // Create Day Circles FIRST
+            loadData(); // Refresh UI with restored data (and update circles)
             // Save profile to ensure it is in LS for this session
             saveProfile();
 
