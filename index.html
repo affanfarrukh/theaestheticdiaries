@@ -2135,6 +2135,7 @@
                 });
             });
             data.todos = todos;
+            data.lastUpdated = Date.now();
 
             localStorage.setItem(DATA_PREFIX + currentDay, JSON.stringify(data));
 
@@ -2480,9 +2481,49 @@
                     const remoteData = JSON.parse(result.data);
 
                     // Restore to localStorage
+                    let maxDay = 1;
+                    let maxTimestamp = 0;
+                    let maxDayFallback = 1;
+
+                    console.log("--- Starting Restore & Day Detection ---");
+
                     Object.keys(remoteData).forEach(key => {
                         localStorage.setItem(key, remoteData[key]);
+                        // Track max day based on lastUpdated timestamp
+                        if (key.startsWith(DATA_PREFIX)) {
+                            try {
+                                const data = JSON.parse(remoteData[key]);
+                                const dayNum = parseInt(key.replace(DATA_PREFIX, ''));
+
+                                if (isNaN(dayNum)) return;
+
+                                console.log(`Checking Day ${dayNum}: lastUpdated=${data.lastUpdated}`);
+
+                                if (data.lastUpdated) {
+                                    if (data.lastUpdated > maxTimestamp) {
+                                        maxTimestamp = data.lastUpdated;
+                                        maxDay = dayNum;
+                                    }
+                                } else {
+                                    // Track highest day with NO timestamp for fallback
+                                    if (dayNum > maxDayFallback) {
+                                        maxDayFallback = dayNum;
+                                    }
+                                }
+                            } catch (e) {
+                                console.error("Error parsing day data", key, e);
+                            }
+                        }
                     });
+
+                    // Decision Logic
+                    if (maxTimestamp > 0) {
+                        console.log(`Creating currentDay to ${maxDay} (based on timestamp ${maxTimestamp})`);
+                        currentDay = maxDay;
+                    } else {
+                        console.log(`Creating currentDay to ${maxDayFallback} (fallback - no timestamps found)`);
+                        currentDay = maxDayFallback;
+                    }
 
                     updateStatus('Restored! Welcome back.', 'success');
                     playSound('success');
