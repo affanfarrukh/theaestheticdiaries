@@ -2559,9 +2559,16 @@
             statusDiv.style.color = type === 'error' ? 'red' : 'var(--primary-color)';
         }
 
+        // Email Validation Helper
+        function isValidEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(email);
+        }
+
         async function performSync() {
             const email = userEmailInput.value.toLowerCase().trim();
             if (!email) { updateStatus('Please enter email to sync!', 'error'); return; }
+            if (!isValidEmail(email)) { updateStatus('Please enter a valid email address!', 'error'); return; }
 
             updateStatus('Checking cloud...', 'loading');
             syncGoBtn.disabled = true;
@@ -2668,7 +2675,7 @@
 
         async function saveDataToCloud() {
             const email = userEmailInput.value.toLowerCase().trim();
-            if (!email) return;
+            if (!email || !isValidEmail(email)) return;
 
             // Gather all relevant data
             const payload = {};
@@ -2689,6 +2696,9 @@
 
         function triggerAutosave() {
             if (!isSynced) return;
+            const email = userEmailInput.value.toLowerCase().trim();
+            if (!isValidEmail(email)) return;
+
             updateStatus('Values changed...', 'info');
             clearTimeout(autosaveTimeout);
             autosaveTimeout = setTimeout(async () => {
